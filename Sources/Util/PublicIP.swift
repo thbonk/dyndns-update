@@ -23,18 +23,18 @@ func resolvePublicIP(_ config: Configuration) async throws -> (ipv4: String, ipv
     }
     
     async let ipv4Task = withExponentialBackoff(
-        maxRetries: config.exponentialBackoff.maxRetries,
-        baseDelay: config.exponentialBackoff.baseDelay) {
+        maxRetries: config.exponentialBackoff!.maxRetries,
+        baseDelay: config.exponentialBackoff!.baseDelay) {
             
-        return try await fetchIP(from: config.ipResolver.ipv4)
+        return try await fetchIP(from: config.ipResolver!.ipv4)
     }
        
     async let ipv6Task = withExponentialBackoff(
-        maxRetries: config.exponentialBackoff.maxRetries,
-        baseDelay: config.exponentialBackoff.baseDelay) {
+        maxRetries: config.exponentialBackoff!.maxRetries,
+        baseDelay: config.exponentialBackoff!.baseDelay) {
             
         guard
-            let ipv6 = config.ipResolver.ipv6
+            let ipv6 = config.ipResolver?.ipv6
         else {
             return nil as String?
         }

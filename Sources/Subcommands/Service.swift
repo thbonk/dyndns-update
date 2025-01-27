@@ -75,8 +75,8 @@ extension dyndns_update {
                 logger.info("IP address: \(addr)")
                 
                 doUpdate = ((addresses == nil || addresses! != (addr.ipv4, addr.ipv6))
-                    && (lastAddressUpdate == nil || (now.timeIntervalSince1970 - lastAddressUpdate!.timeIntervalSince1970) > config.checkAddressChangeInterval))
-                    || (lastForcedUpdate == nil || (now.timeIntervalSince1970 - lastForcedUpdate!.timeIntervalSince1970) > config.forceUpdateInterval)
+                    && (lastAddressUpdate == nil || (now.timeIntervalSince1970 - lastAddressUpdate!.timeIntervalSince1970) > config.checkAddressChangeInterval!))
+                    || (lastForcedUpdate == nil || (now.timeIntervalSince1970 - lastForcedUpdate!.timeIntervalSince1970) > config.forceUpdateInterval!)
                 
                 if doUpdate {
                     logger.info("New public IP address: \(addr.ipv4), \(addr.ipv6)")
@@ -93,8 +93,8 @@ extension dyndns_update {
                     logger.info("No update required.")
                 }
                 
-                logger.info("Waiting for \(config.checkAddressChangeInterval) seconds...")
-                try await Task.sleep(nanoseconds: UInt64(config.checkAddressChangeInterval * 1_000_000_000))
+                logger.info("Waiting for \(config.checkAddressChangeInterval!) seconds...")
+                try await Task.sleep(nanoseconds: UInt64(config.checkAddressChangeInterval! * 1_000_000_000))
             }
         }
     }
