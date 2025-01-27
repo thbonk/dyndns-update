@@ -20,10 +20,10 @@ import Yams
 struct Configuration: Codable {
     
     // MARK: - Properties
-    let ipResolver: IpResolver
-    var exponentialBackoff = ExponentialBackoff(maxRetries: 5, baseDelay: 1.0)
-    var checkAddressChangeInterval: TimeInterval = 5 * 60.0 // 5 minutes
-    var forceUpdateInterval: TimeInterval        = 24 * 60 * 60.0 // 24 hours
+    var ipResolver: IpResolver? = IpResolver(ipv4: "https://api.ipify.org", ipv6: "https://api64.ipify.org")
+    var exponentialBackoff: ExponentialBackoff? = ExponentialBackoff(maxRetries: 5, baseDelay: 1.0)
+    var checkAddressChangeInterval: TimeInterval? = 5 * 60.0 // 5 minutes
+    var forceUpdateInterval: TimeInterval?        = 24 * 60 * 60.0 // 24 hours
     let services: [Service]
     
     

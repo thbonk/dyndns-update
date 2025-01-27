@@ -42,8 +42,8 @@ fileprivate actor Counter {
 }
 
 func updateServices(_ config: Configuration, _ addresses: (ipv4: String, ipv6: String), _ logger: Logger) async throws {
-    let maxRetries = config.exponentialBackoff.maxRetries
-    let baseDelay = config.exponentialBackoff.baseDelay
+    let maxRetries = config.exponentialBackoff!.maxRetries
+    let baseDelay = config.exponentialBackoff!.baseDelay
     let counter = Counter(value: config.services.count)
     
     for service: Service in config.services {
