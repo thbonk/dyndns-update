@@ -10,7 +10,7 @@ on:
 
 jobs:
  build:
-   runs-on: ${{ matrix.os }}
+   name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
    strategy:
      matrix:
        os: [macos-latest, ubuntu-22.04]
@@ -18,18 +18,14 @@ jobs:
        exclude:
          - os: ubuntu-22.04
            arch: arm64
+   runs-on: ${{ matrix.os }}
 
    steps:
-   - uses: actions/checkout@v4
-
    - uses: swift-actions/setup-swift@v2
      with:
        swift-version: ${{ matrix.swift }}
-
+   - uses: actions/checkout@v4
    - name: Build
-     env:
-       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
-       SDKROOT: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
      run: |
        if [ "${{ matrix.os }}" = "macos-latest" ]; then
          swift build -c release --arch ${{ matrix.arch }}
@@ -37,7 +33,6 @@ jobs:
          swift build -c release
        fi
        tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .build/release/${{ github.event.repository.name }}
-
    - name: Upload Binary
      uses: actions/upload-artifact@v4
      with:
@@ -49,14 +44,11 @@ jobs:
    runs-on: ubuntu-latest
    steps:
    - uses: actions/checkout@v4
-   
    - name: Download Artifacts
      uses: actions/download-artifact@v4
-     
    - name: Create Source Archive
      run: |
        git archive --format=tar.gz --output=${{ github.event.repository.name }}-${{ inputs.version }}-src.tar.gz HEAD
-       
    - name: Create Release
      uses: softprops/action-gh-release@v1
      with:
