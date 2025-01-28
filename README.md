@@ -20,3 +20,36 @@ The configuration of this tool is stored in a YAML file. The following configura
 | `services[n].username`                   | String | y         |                           | The username.                                                      |
 | `services[n].passwd`                     | String | y         |                           | The password.                                                      |
 | `services[n].domain`                     | String | y         |                           | The dynamic DNS domain.                                            |
+
+## Usage
+
+```
+USAGE: dyndns-update [--config <config>] [--verbose] <subcommand>
+
+OPTIONS:
+  -c, --config <config>   Fully qualified path of the configuration file.
+                          (default: /etc/dyndns-update.yaml)
+  -v, --verbose           Write extensive logs when verbose is set.
+  -h, --help              Show help information.
+
+SUBCOMMANDS:
+  service                 Start as a service and frequently update dynamic DNS
+                          records.
+  update                  Update dynamic DNS records once.
+
+  See 'dyndns-update help <subcommand>' for detailed help.
+```
+
+When running the tool as a service, it can be configured such that it automatically starts, e.g. using systemd. An example unit file is available in the examples folder.
+
+When running as a service, it should run in the context of a specific user, e.g. `dyndns`. The configuration file shall only be readable by that user.
+
+## Installation
+
+- Create a user and group under which the dyndns-update shall run.
+- Copy the binary of dyndns-update to `/usr/local/bin`.
+- Create the configuration file and copy it to `/etc/dyndns-update.yaml`
+- Adjust the unit file and copy it to `/etc/systemd/system/`.
+- Reload the systemd daemon: `sudo systemctl daemon-reload`
+- Enable the service: `sudo systemctl enable dyndns-update.service`
+- Start the service: `sudo systemctl start dyndns-update.service`

@@ -1,0 +1,16 @@
+[Unit]
+Description=Frequently update dynamic DNS records.
+
+[Service]
+# adjust the path
+ExecStart=/usr/local/bin/dyndns-update service
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+# adjust the user and the group
+User=dyndns
+Group=dyndns
+
+[Install]
+WantedBy=default.target
