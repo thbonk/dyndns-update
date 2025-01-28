@@ -14,24 +14,35 @@ jobs:
    strategy:
      matrix:
        os: [macos-latest, ubuntu-22.04]
+       arch: [x86_64, arm64]
+       exclude:
+         - os: ubuntu-22.04
+           arch: arm64
 
    steps:
    - uses: actions/checkout@v4
 
    - name: Install Swift (Ubuntu)
      if: matrix.os == 'ubuntu-22.04'
-     uses: swift-actions/setup-swift@v1
+     uses: swift-actions/setup-swift@v2
 
    - name: Build
+     env:
+       DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+       SDKROOT: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk
      run: |
-       swift build -c release
-       tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}.tar.gz .build/release/${{ github.event.repository.name }}
+       if [ "${{ matrix.os }}" = "macos-latest" ]; then
+         swift build -c release --arch ${{ matrix.arch }}
+       else
+         swift build -c release
+       fi
+       tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz .build/release/${{ github.event.repository.name }}
 
    - name: Upload Binary
      uses: actions/upload-artifact@v4
      with:
-       name: ${{ github.event.repository.name }}-${{ matrix.os }}
-       path: ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}.tar.gz
+       name: ${{ github.event.repository.name }}-${{ matrix.os }}-${{ matrix.arch }}
+       path: ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
 
  release:
    needs: build
