@@ -15,6 +15,9 @@
  */
 
 import Foundation
+#if os(Linux)
+import FoundationNetworking
+#endif
 import Logging
 
 fileprivate actor Counter {
@@ -62,7 +65,8 @@ func updateServices(_ config: Configuration, _ addresses: (ipv4: String, ipv6: S
             
             do {
                 try await withExponentialBackoff(maxRetries: maxRetries, baseDelay: baseDelay) {
-                    let (data, resp) = try await URLSession.shared.data(from: URL(string: url)!)
+                    let session = URLSession(configuration: .default)
+                    let (data, resp) = try await session.data(for: URLRequest(url: URL(string: url)!))
                     let response = resp as! HTTPURLResponse
                     
                     logger.debug("Service \(service.name) returned status code \(response.statusCode) and response: \(String(data: data, encoding: .utf8)!)")
