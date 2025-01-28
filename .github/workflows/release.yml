@@ -51,7 +51,7 @@ jobs:
      run: |
        git archive --format=tar.gz --output=${{ github.event.repository.name }}-${{ inputs.version }}-src.tar.gz HEAD
    - name: Create Release
-     uses: softprops/action-gh-release@v1
+     uses: softprops/action-gh-release@v2
      with:
        tag_name: v${{ inputs.version }}
        name: Release v${{ inputs.version }}
