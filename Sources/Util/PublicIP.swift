@@ -15,10 +15,14 @@
  */
 
 import Foundation
+#if os(Linux)
+import FoundationNetworking
+#endif
 
 func resolvePublicIP(_ config: Configuration) async throws -> (ipv4: String, ipv6: String) {
     func fetchIP(from url: String) async throws -> String? {
-        let (data, _) = try await URLSession.shared.data(from: URL(string: url)!)
+        let session = URLSession(configuration: .default)
+        let (data, _) = try await session.data(for: URLRequest(url: URL(string: url)!))
         return String(data: data, encoding: .utf8)
     }
     
