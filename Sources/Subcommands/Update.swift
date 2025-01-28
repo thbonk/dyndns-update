@@ -32,35 +32,19 @@ extension dyndns_update {
         }()
 
 
-        // MARK: - Arguments, Flags and Options
-
-        @Option(
-            name: [.long, .short],
-            help: "Fully qualified path of the configuration file."
-        )
-        private var config = "/etc/dyndns-update.yaml"
-
-        @Flag(
-            name: [.long, .short],
-            help: "Write extensive logs when verbose is set."
-        )
-        private var verbose = false
-
-
         // MARK: - Methods
 
         mutating func run() async throws {
-            var logger = Logger(label: "dyndns-update")
-            logger.logLevel = verbose ? .debug : .info
-            logger.info("Starting update.")
+            await dyndns_update.globals.logger.info("Starting update.")
+            
+            let config = await dyndns_update.globals.configuration!
 
-            logger.info("Loading configuration from \(self.config).")
-            let config = try Configuration.load(from: config)
+            await dyndns_update.globals.logger.info("Loading configuration from \(config).")
             let addresses = try await resolvePublicIP(config)
             
-            logger.info("Resolved IP addresses: \(addresses)")
+            await dyndns_update.globals.logger.info("Resolved IP addresses: \(addresses)")
             
-            try await updateServices(config, addresses, logger)
+            try await updateServices(config, addresses, dyndns_update.globals.logger)
         }
     }
 

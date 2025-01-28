@@ -30,71 +30,56 @@ extension dyndns_update {
                 abstract: "Start as a service and frequently update dynamic DNS records."
             )
         }()
-
-
-        // MARK: - Arguments, Flags and Options
-
-        @Option(name: [.long, .short],
-                help: "Fully qualified path of the configuration file."
-        )
-        private var config = "/etc/dyndns-update.yaml"
         
-        @Flag(
-            name: [.long, .short],
-            help: "Write extensive logs when verbose is set."
-        )
-        private var verbose = false
+        
+        @OptionGroup
+        private var parent: dyndns_update
 
 
         // MARK: - Methods
 
         mutating func run() async throws {
-            var logger = Logger(label: "dyndns-update")
-            logger.logLevel = verbose ? .debug : .info
-            logger.info("Starting service.")
-
-            logger.info("Loading configuration from \(self.config).")
-            let config = try Configuration.load(from: config)
-            
-            try await runService(logger, config)
+            try await runService()
         }
         
         
-        private func runService(_ logger: Logger, _ config: Configuration) async throws {
+        private func runService() async throws {
             var addresses: (ipv4: String, ipv6: String)? = nil
             var lastAddressUpdate: Date? = nil
             var lastForcedUpdate: Date? = nil
+            let checkAddressChangeInterval = await dyndns_update.globals.configuration.checkAddressChangeInterval!
+            let forceUpdateInterval = await dyndns_update.globals.configuration.forceUpdateInterval!
             
             while true {
-                logger.info("Checking public IP address...")
+                await dyndns_update.globals.logger.info("Checking public IP address...")
                 
-                let addr = try await resolvePublicIP(config)
+                let addr = try await resolvePublicIP(dyndns_update.globals.configuration)
                 var doUpdate = false
                 let now = Date()
                 
-                logger.info("IP address: \(addr)")
+                await dyndns_update.globals.logger.info("IP address: \(addr)")
                 
                 doUpdate = ((addresses == nil || addresses! != (addr.ipv4, addr.ipv6))
-                    && (lastAddressUpdate == nil || (now.timeIntervalSince1970 - lastAddressUpdate!.timeIntervalSince1970) > config.checkAddressChangeInterval!))
-                    || (lastForcedUpdate == nil || (now.timeIntervalSince1970 - lastForcedUpdate!.timeIntervalSince1970) > config.forceUpdateInterval!)
+                    && (lastAddressUpdate == nil || (now.timeIntervalSince1970 - lastAddressUpdate!.timeIntervalSince1970) > checkAddressChangeInterval))
+                    || (lastForcedUpdate == nil || (now.timeIntervalSince1970 - lastForcedUpdate!.timeIntervalSince1970) > forceUpdateInterval)
                 
                 if doUpdate {
-                    logger.info("New public IP address: \(addr.ipv4), \(addr.ipv6)")
+                    await dyndns_update.globals.logger.info("New public IP address: \(addr.ipv4), \(addr.ipv6)")
                     
                     do {
-                        try await updateServices(config, addr, logger)
+                        try await updateServices(dyndns_update.globals.configuration, addr, dyndns_update.globals.logger)
                         addresses = (addr.ipv4, addr.ipv6)
                         lastAddressUpdate = now
                         lastForcedUpdate = now
                     } catch {
-                        logger.error("Failed to update services: \(error)")
+                        await dyndns_update.globals.logger.error("Failed to update services: \(error)")
                     }
                 } else {
-                    logger.info("No update required.")
+                    await dyndns_update.globals.logger.info("No update required.")
                 }
                 
-                logger.info("Waiting for \(config.checkAddressChangeInterval!) seconds...")
-                try await Task.sleep(nanoseconds: UInt64(config.checkAddressChangeInterval! * 1_000_000_000))
+                await dyndns_update.globals.logger.info("Waiting for \(checkAddressChangeInterval) seconds...")
+                try await Task.sleep(nanoseconds: UInt64(dyndns_update.globals.configuration.checkAddressChangeInterval! * 1_000_000_000))
             }
         }
     }
