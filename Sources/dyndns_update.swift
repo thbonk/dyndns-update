@@ -15,6 +15,7 @@
  */
 
 import ArgumentParser
+import Logging
 
 @available(macOS 10.15, *)
 @main
@@ -22,11 +23,40 @@ struct dyndns_update: AsyncParsableCommand {
 
     // MARK: - Static Properties
 
-    static let configuration: CommandConfiguration = {
+    public static let configuration: CommandConfiguration = {
         CommandConfiguration(
             commandName: "dyndns-update",
             abstract: "Update dynamic DNS records.",
             subcommands: [Service.self, Update.self]
         )
     }()
+    
+    public static let globals = GlobalStore()
+    
+    
+    // MARK: - Arguments, Flags and Options
+
+    @Option(
+        name: [.long, .short],
+        help: "Fully qualified path of the configuration file."
+    )
+    private var config = "/etc/dyndns-update.yaml"
+
+    @Flag(
+        name: [.long, .short],
+        help: "Write extensive logs when verbose is set."
+    )
+    private var verbose = false
+    
+    
+    // MARK: - Methods
+    
+    mutating func validate() throws {
+        let cfg = self.config
+        let verb = self.verbose
+        
+        Task {
+            try await Self.globals.initialize(configFile: cfg, verbose: verb)
+        }
+    }
 }
