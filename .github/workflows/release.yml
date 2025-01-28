@@ -1,0 +1,56 @@
+name: Build and Release
+
+on:
+ workflow_dispatch:
+   inputs:
+     version:
+       description: 'Version number (without v prefix)'
+       required: true
+       type: string
+
+jobs:
+ build:
+   runs-on: ${{ matrix.os }}
+   strategy:
+     matrix:
+       os: [macos-latest, ubuntu-22.04]
+
+   steps:
+   - uses: actions/checkout@v4
+
+   - name: Install Swift (Ubuntu)
+     if: matrix.os == 'ubuntu-22.04'
+     uses: swift-actions/setup-swift@v1
+
+   - name: Build
+     run: |
+       swift build -c release
+       tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}.tar.gz .build/release/${{ github.event.repository.name }}
+
+   - name: Upload Binary
+     uses: actions/upload-artifact@v4
+     with:
+       name: ${{ github.event.repository.name }}-${{ matrix.os }}
+       path: ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}.tar.gz
+
+ release:
+   needs: build
+   runs-on: ubuntu-latest
+   steps:
+   - uses: actions/checkout@v4
+   
+   - name: Download Artifacts
+     uses: actions/download-artifact@v4
+     
+   - name: Create Source Archive
+     run: |
+       git archive --format=tar.gz --output=${{ github.event.repository.name }}-${{ inputs.version }}-src.tar.gz HEAD
+       
+   - name: Create Release
+     uses: softprops/action-gh-release@v1
+     with:
+       tag_name: v${{ inputs.version }}
+       name: Release v${{ inputs.version }}
+       files: |
+         ${{ github.event.repository.name }}-${{ inputs.version }}-*
+         */*.tar.gz
