@@ -41,6 +41,7 @@ jobs:
        path: ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz
 
  release:
+   name: Creating release v${{ inputs.version }}
    needs: build
    runs-on: ubuntu-latest
    steps:
@@ -53,8 +54,9 @@ jobs:
    - name: Create Release
      uses: softprops/action-gh-release@v2
      with:
-       tag_name: v${{ inputs.version }}
        name: Release v${{ inputs.version }}
+       tag_name: v${{ inputs.version }}
+       token: ${{ secrets.DYNDNS_UPDATE_GITHUB_TOKEN }}
        files: |
          ${{ github.event.repository.name }}-${{ inputs.version }}-*
          */*.tar.gz
