@@ -20,7 +20,6 @@ jobs:
          - os: ubuntu-22.04
            arch: arm64
    runs-on: ${{ matrix.os }}
-
    steps:
    - uses: swift-actions/setup-swift@v2
      with:
@@ -34,7 +33,41 @@ jobs:
          swift build -c release
        fi
        cp .build/release/${{ github.event.repository.name }} .
-       tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz ${{ github.event.repository.name }}
+   - name: Import Certificate
+     if: matrix.os == 'macos-latest'
+     env:
+       CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE }}
+       CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+       KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+     run: |
+       echo $CERTIFICATE_BASE64 | base64 --decode > certificate.p12
+       security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+       security default-keychain -s build.keychain
+       security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+       security import certificate.p12 -k build.keychain -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
+   - name: Sign and Notarize
+     if: matrix.os == 'macos-latest'
+     env:
+       APPLE_ID: ${{ secrets.APPLE_ID }}
+       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+       APPLE_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+     run: |
+       # Sign
+       codesign --force --options runtime --sign "Developer ID Application: YOUR NAME" ${{ github.event.repository.name }}
+
+       # Create ZIP for notarization
+       ditto -c -k --keepParent ${{ github.event.repository.name }} ${{ github.event.repository.name }}.zip
+
+       # Notarize
+       xcrun notarytool submit ${{ github.event.repository.name }}.zip \
+         --apple-id "$APPLE_ID" \
+         --password "$APPLE_PASSWORD" \
+         --team-id "$APPLE_TEAM_ID" \
+         --wait
+        # Staple
+        xcrun stapler staple ${{ github.event.repository.name }}
+   - name: Compress Binary
+     run: tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz ${{ github.event.repository.name }}
    - name: Upload Binary
      uses: actions/upload-artifact@v4
      with:
