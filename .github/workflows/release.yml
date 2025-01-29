@@ -13,12 +13,9 @@ jobs:
    name: Swift ${{ matrix.swift }} on ${{ matrix.os }} (${{ matrix.arch }})
    strategy:
      matrix:
-       os: [ubuntu-22.04]
+       os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
        swift: ["6.0"]
-       arch: [x86_64, arm64]
-       #exclude:
-       #  - os: ubuntu-22.04
-       #    arch: arm64
+       arch: [x86_64]
    runs-on: ${{ matrix.os }}
    steps:
    - uses: swift-actions/setup-swift@v2
