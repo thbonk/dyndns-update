@@ -53,7 +53,7 @@ jobs:
        APPLE_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
      run: |
        # Sign
-       codesign --force --options runtime --sign "Developer ID Application: YOUR NAME" ${{ github.event.repository.name }}
+       codesign --force --options runtime --sign "Developer ID Application: Thomas Bonk (Thomas Bonk)" ${{ github.event.repository.name }}
 
        # Create ZIP for notarization
        ditto -c -k --keepParent ${{ github.event.repository.name }} ${{ github.event.repository.name }}.zip
