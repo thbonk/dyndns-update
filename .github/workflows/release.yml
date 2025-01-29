@@ -36,8 +36,8 @@ jobs:
    - name: Import Certificate
      if: matrix.os == 'macos-latest'
      env:
-       CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE }}
-       CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+       CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_BASE64 }}
+       CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
      run: |
        echo $CERTIFICATE_BASE64 | base64 --decode > certificate.p12
