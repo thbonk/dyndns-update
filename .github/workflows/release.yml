@@ -26,6 +26,7 @@ jobs:
      run: |
        swift build -c release --arch ${{ matrix.arch }}
        cp .build/release/${{ github.event.repository.name }} .
+       chmod +x ${{ github.event.repository.name }}
    - name: Compress Binary
      run: tar -czf ${{ github.event.repository.name }}-${{ inputs.version }}-${{ matrix.os }}-${{ matrix.arch }}.tar.gz ${{ github.event.repository.name }}
    - name: Upload Binary
