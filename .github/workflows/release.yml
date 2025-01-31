@@ -24,8 +24,7 @@ jobs:
    - uses: actions/checkout@v4
    - name: Build
      run: |
-       swift build -c release -Xswiftc -static-executable --arch ${{ matrix.arch }}
-       #swift build -c release --static-swift-stdlib --arch ${{ matrix.arch }}
+       swift build -c release --static-swift-stdlib --arch ${{ matrix.arch }}
        cp .build/release/${{ github.event.repository.name }} .
        chmod +x ${{ github.event.repository.name }}
    - name: Compress Binary
