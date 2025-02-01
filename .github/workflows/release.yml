@@ -14,7 +14,7 @@ jobs:
    strategy:
      matrix:
        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
-       swift: ["6.1"]
+       swift: ["6.0"]
        arch: [x86_64]
    runs-on: ${{ matrix.os }}
    steps:
@@ -22,9 +22,11 @@ jobs:
      with:
        swift-version: ${{ matrix.swift }}
    - uses: actions/checkout@v4
+   - name: Docker
+     run: docker --help
    - name: Build
      run: |
-       swift build -c release --static-swift-stdlib --arch ${{ matrix.arch }}
+       swift build -c release --arch ${{ matrix.arch }}
        cp .build/release/${{ github.event.repository.name }} .
        chmod +x ${{ github.event.repository.name }}
    - name: Compress Binary
