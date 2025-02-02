@@ -21,7 +21,7 @@ jobs:
      uses: actions/checkout@v4
    - name: Build
      run: |
-       docker run --name swift --security-opt seccomp=unconfined --volume $PWD:/prj -it swift:${{ matrix.swift }} BUILD_ARCH=${{ matric.arch }} /prj/build-in-docker.sh
+       docker run --name swift --security-opt seccomp=unconfined --volume $PWD:/prj -it swift:${{ matrix.swift }} BUILD_ARCH=${{ matrix.arch }} /prj/build-in-docker.sh
        docker rm -v swift
        cp .build/release/${{ github.event.repository.name }} .
        chmod +x ${{ github.event.repository.name }}
