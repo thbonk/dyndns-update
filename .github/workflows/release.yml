@@ -14,7 +14,7 @@ jobs:
    strategy:
      matrix:
        swift: ["6.0.3-noble", "6.0.3-jammy", "6.0.3-focal"]
-       arch: [x86_64, arm64]
+       arch: [x86_64]
    runs-on: ubuntu-latest
    steps:
    - name: Checkout Sources
