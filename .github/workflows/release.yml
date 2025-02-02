@@ -22,10 +22,9 @@ jobs:
      with:
        swift-version: ${{ matrix.swift }}
    - uses: actions/checkout@v4
-   - name: Docker
-     run: docker --help
    - name: Build
      run: |
+       ls -l
        swift build -c release --arch ${{ matrix.arch }}
        cp .build/release/${{ github.event.repository.name }} .
        chmod +x ${{ github.event.repository.name }}
