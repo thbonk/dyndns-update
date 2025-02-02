@@ -10,22 +10,19 @@ on:
 
 jobs:
  build:
-   name: Swift ${{ matrix.swift }} on ${{ matrix.os }} (${{ matrix.arch }})
+   name: Swift ${{ matrix.swift }} (${{ matrix.arch }})
    strategy:
      matrix:
-       os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
-       swift: ["6.0"]
-       arch: [x86_64]
-   runs-on: ${{ matrix.os }}
+       swift: ["6.0.3-noble", "6.0.3-jammy", "6.0.3-focal"]
+       arch: [x86_64, arm64]
+   runs-on: ubuntu-latest
    steps:
-   - uses: swift-actions/setup-swift@v2
-     with:
-       swift-version: ${{ matrix.swift }}
-   - uses: actions/checkout@v4
+   - name: Checkout Sources
+     uses: actions/checkout@v4
    - name: Build
      run: |
-       ls -l
-       swift build -c release --arch ${{ matrix.arch }}
+       docker run --name swift --security-opt seccomp=unconfined --volume $PWD:/prj -it swift:${{ matrix.swift }} BUILD_ARCH=${{ matric.arch }} /prj/build-in-docker.sh
+       docker rm -v swift
        cp .build/release/${{ github.event.repository.name }} .
        chmod +x ${{ github.event.repository.name }}
    - name: Compress Binary

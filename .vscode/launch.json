@@ -17,18 +17,18 @@
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:dyndns-updater}",
+            "cwd": "${workspaceFolder:dyndns-update}",
             "name": "Release dyndns-update",
-            "program": "${workspaceFolder:dyndns-updater}/.build/release/dyndns-update",
+            "program": "${workspaceFolder:dyndns-update}/.build/release/dyndns-update",
             "preLaunchTask": "swift: Build Release dyndns-update"
         },
         {
             "type": "lldb",
             "request": "launch",
             "args": [],
-            "cwd": "${workspaceFolder:dyndns-updater}",
+            "cwd": "${workspaceFolder:dyndns-update}",
             "name": "Debug dyndns-update",
-            "program": "${workspaceFolder:dyndns-updater}/.build/debug/dyndns-update",
+            "program": "${workspaceFolder:dyndns-update}/.build/debug/dyndns-update",
             "preLaunchTask": "swift: Build Debug dyndns-update"
         }
     ]
